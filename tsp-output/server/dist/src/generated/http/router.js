@@ -83,6 +83,19 @@ export function createDemoServiceRouter(widgets, options = {}) {
             const ctx = { request, response, errorHandlers: __errorHandlers_25 };
             return dispatch(ctx, request, response).catch((e) => __onInternalError_22(ctx, e));
         },
+        expressMiddleware: function (request, response, next) {
+            const ctx = { request, response, errorHandlers: __errorHandlers_25 };
+            void dispatch({
+                request,
+                response,
+                errorHandlers: {
+                    ...__errorHandlers_25,
+                    onRequestNotFound: function () {
+                        next();
+                    },
+                },
+            }, request, response).catch((e) => __onInternalError_22(ctx, e));
+        },
     };
 }
 //# sourceMappingURL=router.js.map

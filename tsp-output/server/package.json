@@ -11,6 +11,14 @@
   },
   "devDependencies": {
     "typescript": "^5.7.3",
-    "@types/node": "^22.13.1"
+    "@types/node": "^22.13.1",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@types/express": "^5.0.1",
+    "@types/morgan": "^1.9.9"
+  },
+  "dependencies": {
+    "swagger-ui-express": "^5.0.1",
+    "express": "^5.1.0",
+    "morgan": "^1.10.0"
   }
 }

@@ -1,3 +1,5 @@
+npm i --force --no-package-lock
+
 ## generate opanapi spec and node middleward
 tsp compile .
 
