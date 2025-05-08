@@ -1,0 +1,16 @@
+{
+  "name": "typespec-on-azure-server",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Generated TypeSpec server project.",
+  "private": true,
+  "scripts": {
+    "start": "node dist/src/index.js",
+    "build": "npm run build:typespec && tsc",
+    "build:typespec": "tsp compile --output-dir=\"..\" ../.."
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "@types/node": "^22.13.1"
+  }
+}
