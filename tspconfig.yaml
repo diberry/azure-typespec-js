@@ -8,3 +8,4 @@ options:
       - 3.1.0
   "@typespec/http-server-js":
     emitter-output-dir: "{output-dir}/server"
+    express: true

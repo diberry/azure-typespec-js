@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: azure-typespec-scaffold-dotnet
+metadata:
+    template: azd-init@1.14.0
+services:
+    api:
+        project: ./tsp-output/server
+        host: containerapp
+        language: docker
+pipeline:
+  provider: github
+hooks:
+  postprovision:
+    windows:
+      shell: pwsh
+      run: |
+        # Set environment variables for the Container App
+        azd env set AZURE_COSMOS_ENDPOINT "$env:AZURE_COSMOS_ENDPOINT"
+      continueOnError: false
+      interactive: true
+    posix:
+      shell: sh
+      run: |
+        # Set environment variables for the Container App
+        azd env set AZURE_COSMOS_ENDPOINT "$AZURE_COSMOS_ENDPOINT"
+      continueOnError: false
+      interactive: true
