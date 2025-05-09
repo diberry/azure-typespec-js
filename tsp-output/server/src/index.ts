@@ -14,13 +14,16 @@ const azureCosmosEndpoint = process.env.AZURE_COSMOS_ENDPOINT;
 const azureCosmosDatabase = process.env.AZURE_COSMOS_DATABASE || "WidgetsDb";
 const azureCosmosContainer = process.env.AZURE_COSMOS_CONTAINER || "Widgets";
 
+
+// Validate required configurations
 if (!azureCosmosEndpoint) {
-  throw new Error("AZURE_COSMOS_ENDPOINT environment variable is required");
+  console.error("Error: AZURE_COSMOS_ENDPOINT environment variable is required");
   process.exit(1);
 }
 
-
-const router = createWidgetServiceRouter(new WidgetsCosmosImpl(azureCosmosEndpoint, azureCosmosDatabase, azureCosmosContainer));
+const router = createWidgetServiceRouter(
+  new WidgetsCosmosImpl(azureCosmosEndpoint, azureCosmosDatabase, azureCosmosContainer)
+);
 
 const PORT = process.env.PORT || 3000;
 
