@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceFolder}/tsp-output/server/dist/src/index.js",
+      "runtimeArgs": ["-r", "dotenv/config"],
+      "internalConsoleOptions": "neverOpen",
+      "cwd": "${workspaceFolder}/tsp-output/server"
+    }
+  ]
+}

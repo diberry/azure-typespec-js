@@ -1,2 +1,2 @@
-GET https://localhost:3000/widgets
+GET http://localhost:3000/widgets
 accept: application/json

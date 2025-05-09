@@ -1,9 +1,9 @@
-@widgetId = 2
+@widgetId = 5
 @host = localhost:3000
 
 ###
 
-POST https://{{host}}/widgets
+POST http://{{host}}/widgets
 accept: application/json
 Content-Type: application/json
 
