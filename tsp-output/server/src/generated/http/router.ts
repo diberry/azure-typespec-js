@@ -122,7 +122,11 @@ export function createWidgetServiceRouter(
         if (path.length === 0) {
           switch (request.method) {
             case "GET":
-              return __routeHandlers_24.widgets_list(ctx, widgets);
+
+              const listResult = await __routeHandlers_24.widgets_list(ctx, widgets);
+              console.log("Generated router list result:", listResult);
+
+              return listResult;
             case "POST":
               return __routeHandlers_24.widgets_create(ctx, widgets);
             default:

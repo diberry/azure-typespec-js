@@ -66,8 +66,13 @@ private async getContainer(): Promise<Container> {
         const { resources } = await container.items
         .query({ query: "SELECT * FROM c" })
         .fetchAll();
+
+        console.log("Fetched widgets:", resources);
       
-      return resources.map((doc: WidgetDocument) => this.documentToWidget(doc));
+        const mappedResources = resources.map((doc: WidgetDocument) => this.documentToWidget(doc));
+        console.log("Mapped widgets:", mappedResources);
+      
+      return mappedResources;
 
     } catch (error) {
         console.error("Error listing widgets:", error);

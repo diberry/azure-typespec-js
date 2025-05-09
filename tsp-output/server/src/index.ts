@@ -31,7 +31,7 @@ const app = express();
 
 app.use(morgan("dev"));
 
-const SWAGGER_UI_PATH = process.env.SWAGGER_UI_PATH || "/";
+const SWAGGER_UI_PATH = process.env.SWAGGER_UI_PATH || "/.api-docs";
 
 addSwaggerUi(SWAGGER_UI_PATH, app);
 
