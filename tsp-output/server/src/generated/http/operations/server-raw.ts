@@ -7,7 +7,7 @@ import {
   HTTP_RESPONDER as __httpResponderSymbol_1,
 } from "../../helpers/http.js";
 
-import { Widgets, Error } from "../../models/all/demo-service.js";
+import { Widgets, WidgetError } from "../../models/all/widget-service.js";
 
 import { ReadWidget, CreateWidget } from "../../models/all/typespec.js";
 
@@ -17,7 +17,7 @@ export async function widgets_list(
   __ctx_2: HttpContext,
   __operations_4: Widgets,
 ): Promise<void> {
-  let __result_3: ReadWidget[] | Error;
+  let __result_3: ReadWidget[] | WidgetError;
 
   try {
     __result_3 = await __operations_4.list(__ctx_2);
@@ -40,7 +40,7 @@ export async function widgets_read(
   __operations_8: Widgets,
   id: string,
 ): Promise<void> {
-  let __result_7: ReadWidget | Error;
+  let __result_7: ReadWidget | WidgetError;
 
   try {
     __result_7 = await __operations_8.read(__ctx_6, id);
@@ -97,7 +97,7 @@ export async function widgets_create(
     },
   )) as CreateWidget;
 
-  let __result_11: ReadWidget | Error;
+  let __result_11: ReadWidget | WidgetError;
 
   try {
     __result_11 = await __operations_12.create(
@@ -126,7 +126,7 @@ export async function widgets_delete(
   __operations_18: Widgets,
   id: string,
 ): Promise<void> {
-  let __result_17: void | Error;
+  let __result_17: void | WidgetError;
 
   try {
     __result_17 = await __operations_18.delete(__ctx_16, id);

@@ -6,7 +6,7 @@ import * as serverRaw from "./operations/server-raw.js";
 
 import { parseHeaderValueParameters } from "../helpers/header.js";
 
-import { Widgets } from "../models/all/demo-service.js";
+import { Widgets } from "../models/all/widget-service.js";
 
 import {
   RouterOptions,
@@ -15,7 +15,7 @@ import {
   HttpContext,
 } from "../helpers/router.js";
 
-export interface DemoServiceRouter {
+export interface WidgetServiceRouter {
   /**
    * Dispatches the request to the appropriate service based on the request path.
    *
@@ -45,12 +45,12 @@ export interface DemoServiceRouter {
   ): void;
 }
 
-export function createDemoServiceRouter(
+export function createWidgetServiceRouter(
   widgets: Widgets,
   options: RouterOptions<{
     widgets: Widgets<HttpContext>;
   }> = {},
-): DemoServiceRouter {
+): WidgetServiceRouter {
   const __onRequestNotFound_20 =
     options.onRequestNotFound ??
     ((ctx) => {
@@ -109,7 +109,7 @@ export function createDemoServiceRouter(
   } as const;
 
   const dispatch = createPolicyChain(
-    "DemoServiceRouterDispatch",
+    "WidgetServiceRouterDispatch",
     options.policies ?? [],
     async function (ctx, request, response) {
       const url = new URL(request.url!, `http://${request.headers.host}`);

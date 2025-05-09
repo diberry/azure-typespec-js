@@ -2,25 +2,25 @@
 
 import { ReadWidget } from "./typespec.js";
 
-export interface Error {
+export interface WidgetError {
   code: number;
 
   message: string;
 }
 
 export interface Widgets<Context = unknown> {
-  list(ctx: Context): Promise<ReadWidget[] | Error>;
+  list(ctx: Context): Promise<ReadWidget[] | WidgetError>;
 
-  read(ctx: Context, id: string): Promise<ReadWidget | Error>;
+  read(ctx: Context, id: string): Promise<ReadWidget | WidgetError>;
 
   create(
     ctx: Context,
     id: string,
     weight: number,
     color: "red" | "blue",
-  ): Promise<ReadWidget | Error>;
+  ): Promise<ReadWidget | WidgetError>;
 
-  delete(ctx: Context, id: string): Promise<void | Error>;
+  delete(ctx: Context, id: string): Promise<void | WidgetError>;
 }
 
 export interface Widget {

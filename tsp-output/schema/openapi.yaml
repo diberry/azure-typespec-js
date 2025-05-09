@@ -23,7 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/WidgetError'
       tags:
         - Widgets
     post:
@@ -41,7 +41,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/WidgetError'
       tags:
         - Widgets
       requestBody:
@@ -71,7 +71,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/WidgetError'
       tags:
         - Widgets
     delete:
@@ -90,7 +90,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/WidgetError'
       tags:
         - Widgets
 components:
@@ -123,17 +123,6 @@ components:
             - red
             - blue
       description: ''
-    Error:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string
     ReadWidget:
       type: object
       required:
@@ -187,6 +176,17 @@ components:
           enum:
             - red
             - blue
+    WidgetError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
     WidgetList:
       type: object
       required:

@@ -25,7 +25,7 @@ export const openApiDocument = {
             description: "An unexpected error response.",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: { $ref: "#/components/schemas/WidgetError" },
               },
             },
           },
@@ -48,7 +48,7 @@ export const openApiDocument = {
             description: "An unexpected error response.",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: { $ref: "#/components/schemas/WidgetError" },
               },
             },
           },
@@ -88,7 +88,7 @@ export const openApiDocument = {
             description: "An unexpected error response.",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: { $ref: "#/components/schemas/WidgetError" },
               },
             },
           },
@@ -114,7 +114,7 @@ export const openApiDocument = {
             description: "An unexpected error response.",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
+                schema: { $ref: "#/components/schemas/WidgetError" },
               },
             },
           },
@@ -135,7 +135,7 @@ export const openApiDocument = {
         },
         description: "",
       },
-      Error: {
+      WidgetError: {
         type: "object",
         required: ["code", "message"],
         properties: {

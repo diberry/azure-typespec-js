@@ -1,7 +1,7 @@
 import * as http from "node:http";
-import { Widgets } from "../models/all/demo-service.js";
+import { Widgets } from "../models/all/widget-service.js";
 import { RouterOptions, HttpContext } from "../helpers/router.js";
-export interface DemoServiceRouter {
+export interface WidgetServiceRouter {
     /**
      * Dispatches the request to the appropriate service based on the request path.
      *
@@ -25,6 +25,6 @@ export interface DemoServiceRouter {
      */
     expressMiddleware(req: http.IncomingMessage, res: http.ServerResponse, next: () => void): void;
 }
-export declare function createDemoServiceRouter(widgets: Widgets, options?: RouterOptions<{
+export declare function createWidgetServiceRouter(widgets: Widgets, options?: RouterOptions<{
     widgets: Widgets<HttpContext>;
-}>): DemoServiceRouter;
+}>): WidgetServiceRouter;

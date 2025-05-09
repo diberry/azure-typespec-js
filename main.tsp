@@ -2,7 +2,7 @@ import "@typespec/http";
 
 using Http;
 @service(#{ title: "Widget Service" })
-namespace DemoService;
+namespace WidgetService;
 
 model Widget {
   id: string;
@@ -15,7 +15,7 @@ model WidgetList {
 }
 
 @error
-model Error {
+model WidgetError {
   code: int32;
   message: string;
 }
@@ -28,8 +28,8 @@ model AnalyzeResult {
 @route("/widgets")
 @tag("Widgets")
 interface Widgets {
-  @get list(): Read<Widget>[] | Error;
-  @get read(@path id: string): Read<Widget> | Error;
-  @post create(...Create<Widget>): Read<Widget> | Error;
-  @delete delete(@path id: string): void | Error;
+  @get list(): Read<Widget>[] | WidgetError;
+  @get read(@path id: string): Read<Widget> | WidgetError;
+  @post create(...Create<Widget>): Read<Widget> | WidgetError;
+  @delete delete(@path id: string): void | WidgetError;
 }

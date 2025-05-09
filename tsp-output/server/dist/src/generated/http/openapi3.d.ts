@@ -161,7 +161,7 @@ export declare const openApiDocument: {
                 };
                 description: string;
             };
-            Error: {
+            WidgetError: {
                 type: string;
                 required: string[];
                 properties: {
