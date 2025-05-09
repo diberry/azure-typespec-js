@@ -178,7 +178,7 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
   /**
    * Convert a Cosmos DB document to a Widget
    */
-  private documentToWidget(doc: WidgetDocument): Widget {
+  private documentToWidget(doc: WidgetDocument): ReadWidget {
     return Object.fromEntries(
       Object.entries(doc).filter(([key]) => {
         return !key.startsWith('_');
