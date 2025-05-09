@@ -4,6 +4,7 @@ targetScope = 'resourceGroup'
 param serviceName string = 'api'
 var databaseName = 'WidgetDb'
 var containerName = 'Widgets'
+var partitionKey = '/id'
 
 @minLength(1)
 @maxLength(64)
@@ -79,7 +80,7 @@ module cosmosDb 'br/public:avm/res/document-db/database-account:0.8.1' = {
           {
             name: containerName
             paths: [
-              '/id'
+              partitionKey
             ]
           }
         ]
@@ -206,6 +207,7 @@ module containerAppsApp 'br/public:avm/res/app/container-app:0.9.0' = {
 output AZURE_COSMOS_ENDPOINT string = cosmosDb.outputs.endpoint
 output AZURE_COSMOS_DATABASE string = databaseName
 output AZURE_COSMOS_CONTAINER string = containerName
+output AZURE_COSMOS_PARTITION_KEY string = partitionKey
 
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.loginServer
 output AZURE_CONTAINER_REGISTRY_USERNAME string = containerRegistry.outputs.location

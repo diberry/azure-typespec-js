@@ -1,12 +1,14 @@
 import { CosmosClient, Database, Container } from "@azure/cosmos";
+import { DefaultAzureCredential } from "@azure/identity";
 import { WidgetError } from "../generated/models/all/widget-service.js";
 /**
  * Interface for CosmosDB configuration settings
  */
 export interface CosmosConfig {
   endpoint: string;
-  key: string;
   databaseId: string;
+  containerId: string;
+  partionKey: string;
 }
 
 /**
@@ -57,15 +59,17 @@ export class CosmosClientManager {
       this.isInitializing = true;
       this.validateConfig(config);
       this.config = config;
-      
-      this.client = new CosmosClient({ 
-        endpoint: config.endpoint, 
-        key: config.key,
+
+      const credential = new DefaultAzureCredential();
+
+      this.client = new CosmosClient({
+        endpoint: config.endpoint,
+        aadCredentials: credential,
         connectionPolicy: {
           requestTimeout: 30000 // 30 second timeout
         }
       });
-      
+
       console.log("CosmosDB client initialized successfully");
     } catch (error) {
       const formattedError = buildError(error, "Failed to initialize CosmosDB client");
@@ -82,8 +86,8 @@ export class CosmosClientManager {
    */
   private validateConfig(config: CosmosConfig): void {
     if (!config.endpoint) throw new Error("CosmosDB endpoint is required");
-    if (!config.key) throw new Error("CosmosDB key is required");
     if (!config.databaseId) throw new Error("CosmosDB databaseId is required");
+    if (!config.containerId) throw new Error("CosmosDB containerId is required");
   }
 
   /**
@@ -92,6 +96,9 @@ export class CosmosClientManager {
    * @returns Database instance
    */
   public async getDatabase(databaseId?: string): Promise<Database> {
+
+    console.log("DatabaseId:", databaseId);
+
     if (!this.client) {
       throw new Error("CosmosDB client is not initialized. Call initialize() first");
     }
@@ -123,28 +130,50 @@ export class CosmosClientManager {
    * @returns Container instance
    */
   public async getContainer(
+    endpoint: string,
+    databaseId: string,
     containerId: string,
-    databaseId?: string,
-    partitionKey: string = "/id"
+    partitionKey: string
   ): Promise<Container> {
+
+    console.log("getContainer Endpoint:", endpoint);
+    console.log("getContainer ContainerId:", containerId);
+    console.log("getContainer DatabaseId:", databaseId);
+    console.log("getContainer PartitionKey:", partitionKey);
+
+    if (!databaseId) {
+      throw new Error("databaseId is required");
+    }
+
+    if (!containerId) {
+      throw new Error("containerId is required");
+    }
+
     const cacheKey = `${databaseId || this.config?.databaseId}-${containerId}`;
-    
+    console.log("getContainer CacheKey:", cacheKey);
+
     // Check cache first
     if (this.containerCache.has(cacheKey)) {
+      console.log("getContainer Container found in cache");
       return this.containerCache.get(cacheKey)!;
     }
 
     try {
       const database = await this.getDatabase(databaseId);
-      const { container } = await database.containers.createIfNotExists({ 
+      console.log("getContainer Database found:", database.id);
+
+      const { container } = await database.containers.createIfNotExists({
         id: containerId,
         partitionKey: { paths: [partitionKey] }
       });
-      
+      console.log("getContainer Container created:", container.id);
+
       this.containerCache.set(cacheKey, container);
+      console.log("getContainer Container cached:", container.id);
       return container;
     } catch (error) {
-      throw buildError(error, `Failed to get or create container ${containerId}`);
+      console.error("getContainer Error getting or creating container:", error);
+      throw buildError(error, `getContainer Failed to get or create container ${containerId}`);
     }
   }
 
@@ -157,7 +186,7 @@ export class CosmosClientManager {
         // Clear caches
         this.databaseCache.clear();
         this.containerCache.clear();
-        
+
         // Cosmos SDK client doesn't have a formal close/dispose method,
         // but we can set it to null to allow garbage collection
         this.client = null;
@@ -167,7 +196,7 @@ export class CosmosClientManager {
       }
     }
   }
-  
+
 }
 /**
  * Helper function to build Error objects as defined in demo-service.ts
@@ -194,19 +223,19 @@ export function buildError(error: unknown, defaultMessage: string = 'An unknown 
   }
 
   const err = error as any;
-  
+
   // Handle structured Cosmos errors
   if (err.code && err.statusCode) {
     code = err.statusCode as number;
     message = errorMap.get(code) || err.message || defaultMessage;
     return { code, message };
   }
-  
+
   // Handle network errors
   if (err.name === "AbortError" || err.name === "TimeoutError") {
-    return { 
-      code: 504, 
-      message: "Gateway timeout: CosmosDB operation timed out" 
+    return {
+      code: 504,
+      message: "Gateway timeout: CosmosDB operation timed out"
     };
   }
 
@@ -214,31 +243,31 @@ export function buildError(error: unknown, defaultMessage: string = 'An unknown 
   if (typeof error === 'object' && error !== null) {
     // Cast to any to access potential Cosmos DB error properties
     const cosmosError = error as any;
-    
+
     // Check for Cosmos DB specific error properties
     if (typeof cosmosError.statusCode === 'number') {
       // Use statusCode from the Cosmos DB SDK error
       code = cosmosError.statusCode;
-      
+
       // Use the errorMap first if a mapped message exists
       message = errorMap.get(code) || message;
-      
+
       // Then build a detailed message if needed
       if (!errorMap.has(code)) {
         let detailedMessage = `Cosmos DB error: statusCode=${cosmosError.statusCode}`;
-        
+
         if (typeof cosmosError.subStatusCode === 'number') {
           detailedMessage += `, subStatusCode=${cosmosError.subStatusCode}`;
         }
-        
+
         // Include the original error message if available
         if (typeof cosmosError.message === 'string' && cosmosError.message.trim() !== '') {
           detailedMessage += ` - ${cosmosError.message}`;
         }
-        
+
         message = detailedMessage;
       }
-    } 
+    }
     // Fallback to checking WidgetError properties
     else if (typeof cosmosError.code === 'number') {
       // Map custom error codes to HTTP status codes if needed
@@ -253,11 +282,11 @@ export function buildError(error: unknown, defaultMessage: string = 'An unknown 
       } else {
         code = cosmosError.code;
       }
-      
+
       // Use the message from the error or default to errorMap
       message = cosmosError.message || errorMap.get(code) || defaultMessage;
     }
   }
-  
+
   return { code, message };
 }

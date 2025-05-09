@@ -2,6 +2,10 @@
 
 import { ReadWidget } from "./typespec.js";
 
+export interface WidgetList {
+  widgets: ReadWidget[];
+}
+
 export interface WidgetError {
   code: number;
 
@@ -9,7 +13,7 @@ export interface WidgetError {
 }
 
 export interface Widgets<Context = unknown> {
-  list(ctx: Context): Promise<ReadWidget[] | WidgetError>;
+  list(ctx: Context): Promise<WidgetList | WidgetError>;
 
   read(ctx: Context, id: string): Promise<ReadWidget | WidgetError>;
 
@@ -29,10 +33,6 @@ export interface Widget {
   weight: number;
 
   color: "red" | "blue";
-}
-
-export interface WidgetList {
-  items: Widget[];
 }
 
 export interface AnalyzeResult {

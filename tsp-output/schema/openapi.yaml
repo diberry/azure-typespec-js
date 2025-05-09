@@ -15,9 +15,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ReadWidgetItem'
+                $ref: '#/components/schemas/WidgetList'
         default:
           description: An unexpected error response.
           content:
@@ -190,9 +188,9 @@ components:
     WidgetList:
       type: object
       required:
-        - items
+        - widgets
       properties:
-        items:
+        widgets:
           type: array
           items:
-            $ref: '#/components/schemas/Widget'
+            $ref: '#/components/schemas/ReadWidgetItem'

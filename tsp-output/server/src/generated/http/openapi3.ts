@@ -14,10 +14,7 @@ export const openApiDocument = {
             description: "The request has succeeded.",
             content: {
               "application/json": {
-                schema: {
-                  type: "array",
-                  items: { $ref: "#/components/schemas/ReadWidgetItem" },
-                },
+                schema: { $ref: "#/components/schemas/WidgetList" },
               },
             },
           },
@@ -134,6 +131,16 @@ export const openApiDocument = {
           color: { type: "string", enum: ["red", "blue"] },
         },
         description: "",
+      },
+      WidgetList: {
+        type: "object",
+        required: ["widgets"],
+        properties: {
+          widgets: {
+            type: "array",
+            items: { $ref: "#/components/schemas/ReadWidgetItem" },
+          },
+        },
       },
       WidgetError: {
         type: "object",

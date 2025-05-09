@@ -7,7 +7,11 @@ import {
   HTTP_RESPONDER as __httpResponderSymbol_1,
 } from "../../helpers/http.js";
 
-import { Widgets, WidgetError } from "../../models/all/widget-service.js";
+import {
+  Widgets,
+  WidgetList,
+  WidgetError,
+} from "../../models/all/widget-service.js";
 
 import { ReadWidget, CreateWidget } from "../../models/all/typespec.js";
 
@@ -17,7 +21,7 @@ export async function widgets_list(
   __ctx_2: HttpContext,
   __operations_4: Widgets,
 ): Promise<void> {
-  let __result_3: ReadWidget[] | WidgetError;
+  let __result_3: WidgetList | WidgetError;
 
   try {
     __result_3 = await __operations_4.list(__ctx_2);
@@ -27,11 +31,12 @@ export async function widgets_list(
     } else throw e;
   }
 
-  if ("code" in __result_3) {
+  if ("widgets" in __result_3) {
     __ctx_2.response.setHeader("content-type", "application/json");
     __ctx_2.response.end(JSON.stringify(__result_3));
-  } else {
-    __ctx_2.response.end();
+  } else if ("code" in __result_3) {
+    __ctx_2.response.setHeader("content-type", "application/json");
+    __ctx_2.response.end(JSON.stringify(__result_3));
   }
 }
 

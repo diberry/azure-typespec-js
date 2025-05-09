@@ -1,8 +1,9 @@
 
-import { Widgets, Widget, WidgetError } from "../generated/models/all/widget-service.js";
+import { Widgets, Widget, WidgetList, WidgetError } from "../generated/models/all/widget-service.js";
 import { ReadWidget } from "../generated/models/all/typespec.js";
 import { CosmosClientManager, buildError } from "../azure/cosmos-client.js";
 import { HttpContext } from "../generated/helpers/router.js";
+import { Container } from "@azure/cosmos";
 
 export interface WidgetDocument {
     id: string;
@@ -18,8 +19,10 @@ export interface WidgetDocument {
 export class WidgetsCosmosController implements Widgets<HttpContext>  {
   private readonly databaseId: string;
   private readonly containerId: string;
+  private readonly partitionKey: string;
   private readonly endpoint: string;
   private readonly cosmosManager: CosmosClientManager;
+  private container: Container | null = null;
   private containerInitialized: boolean = false;
 
   /**
@@ -27,33 +30,50 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
    * @param databaseId The Cosmos DB database ID
    * @param containerId The Cosmos DB container ID
    */
-  constructor(azureCosmosEndpoint: string, databaseId: string = "widgets-db", containerId: string = "widgets") {
+  constructor(azureCosmosEndpoint: string, databaseId: string, containerId: string, partitionKey: string) {
+    console.log(`Db: ${databaseId}, Container: ${containerId}`);
+
     if (!azureCosmosEndpoint) throw new Error("azureCosmosEndpoint is required");
     if (!databaseId) throw new Error("databaseId is required");
     if (!containerId) throw new Error("containerId is required");
+    if (!partitionKey) throw new Error("partitionKey is required");
     
     this.endpoint = azureCosmosEndpoint;
     this.databaseId = databaseId;
     this.containerId = containerId;
+    this.partitionKey = partitionKey;
     this.cosmosManager = CosmosClientManager.getInstance();
+  
+    // Initialize the client in the constructor
+    this.cosmosManager.initialize({
+      endpoint: azureCosmosEndpoint,
+      databaseId: databaseId,
+      containerId: containerId,
+      partionKey: partitionKey,
+    }).then(() => {
+    }).catch(err => {
+      console.error("Failed to initialize CosmosDB client:", err);
+    });
   }
 
   /**
    * Initialize and get the container reference, with caching
    * @returns The Cosmos container instance
    */
-  private async ensureContainer() {
+  private async ensureContainer():Promise<Container> {
     try {
-      if (!this.containerInitialized) {
+      if (!this.containerInitialized || !this.container) {
         const container = await this.cosmosManager.getContainer(
           this.endpoint,
-          this.containerId, 
-          this.databaseId
+          this.databaseId,
+          this.containerId,
+          this.partitionKey 
         );
         this.containerInitialized = true;
-        return container;
+        this.container = container;
+        return this.container;
       }
-      return await this.cosmosManager.getContainer(this.containerId, this.databaseId);
+      return this.container;
     } catch (error) {
       const formattedError = buildError(
         error, 
@@ -81,7 +101,7 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
       const container = await this.ensureContainer();
       
       const newWidget: WidgetDocument = { id, weight, color };
-      const { resource } = await container.items.create<WidgetDocument>(newWidget, { 
+      const { resource } = await container.items.create<Widget>(newWidget, { 
         disableAutomaticIdGeneration: true // Ensure we use the provided ID
       });
 
@@ -90,7 +110,8 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
       }
 
       console.log(`${operationName}: Created widget with ID ${resource.id}`);
-      return resource;
+      
+      return this.documentToWidget(newWidget);
     } catch (error: any) {
         if (error && typeof error === 'object' && 'statusCode' in error && (error as any).statusCode === 409) {
             return buildError({statusCode:409}, `Widget with id ${id} already exists`);
@@ -140,7 +161,7 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
         return buildError({statusCode:404}, `Widget with id ${id} not found`);
       }
       
-      return resource as Widget;
+      return this.documentToWidget(resource);
     } catch (error: any) {
         console.error(`Error reading widget ${id}:`, error);
         return buildError(error, `Failed to read widget ${id}`);
@@ -151,7 +172,7 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
    * List all widgets with optional paging
    * @returns List of widgets
    */
-  async list(ctx: HttpContext): Promise<ReadWidget[] | WidgetError> {
+  async list(ctx: HttpContext): Promise<WidgetList | WidgetError> {
     const operationName = "WidgetsCosmosController.list";
     
     console.log(`${operationName}: Listing widgets`);
@@ -164,11 +185,9 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
         .fetchAll();
 
         console.log("Fetched widgets:", resources);
-      
-        const mappedResources = resources.map((doc: WidgetDocument) => this.documentToWidget(doc));
-        console.log("Mapped widgets:", mappedResources);
 
-        return mappedResources;
+
+        return { widgets: resources.map(this.documentToWidget) };
 
     } catch (error) {
         console.error("Error listing widgets:", error);
@@ -178,7 +197,7 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
   /**
    * Convert a Cosmos DB document to a ReadWidget
    */
-  private documentToWidget(doc: WidgetDocument): ReadWidget {
+  private documentToWidget(doc: WidgetDocument): Widget {
     return {
       id: doc.id,
       weight: doc.weight,
