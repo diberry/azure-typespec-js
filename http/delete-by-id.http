@@ -1,0 +1,5 @@
+@widgetId = 4
+
+###
+DELETE http://localhost:3000/widgets/{{widgetId}}
+Content-Type: application/json
