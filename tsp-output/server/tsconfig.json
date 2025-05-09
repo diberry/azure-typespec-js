@@ -13,6 +13,5 @@
     "sourceMap": true
   },
   "include": [
-    "src/**/*.ts"
-, "../../widgets.ts"  ]
+    "src/**/*.ts" ]
 }
