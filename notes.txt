@@ -1,5 +1,0 @@
-There is a little dependency issue that I'll need to talk to Tim about once he's in the office, but for right now what works for me in the repo is:
-change the dependency version for every package from latest to next in the package.json
-For @typespec/compiler only, change the version to 1.1.0-dev.2 -- only this version has a new API function that the next version of HSJS needs and just setting "@typespec/compiler": "next" doesn't seem to work right now, which is what I'll need to talk to Tim about.
-Delete node_modules and package-lock.json, then run npm i --force --no-package-lock to force NPM to reacquire the new versions.
-None of these steps should be required once these packages are fully published, but this should get you on the latest development version of everything right away.
