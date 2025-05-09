@@ -5,10 +5,7 @@ import { CosmosClientManager, buildError } from "../azure/cosmos-client.js";
 import { HttpContext } from "../generated/helpers/router.js";
 import { Container } from "@azure/cosmos";
 
-export interface WidgetDocument {
-    id: string;
-    weight: number;
-    color: "red" | "blue";
+export interface WidgetDocument extends Widget {
     _ts?: number; // Cosmos DB timestamp
     _etag?: string; // Cosmos DB etag for optimistic concurrency
   }
@@ -31,7 +28,6 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
    * @param containerId The Cosmos DB container ID
    */
   constructor(azureCosmosEndpoint: string, databaseId: string, containerId: string, partitionKey: string) {
-    console.log(`Db: ${databaseId}, Container: ${containerId}`);
 
     if (!azureCosmosEndpoint) throw new Error("azureCosmosEndpoint is required");
     if (!databaseId) throw new Error("databaseId is required");
@@ -94,8 +90,6 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
     weight: number,
     color: "red" | "blue"
   ): Promise<ReadWidget | WidgetError> {
-    const operationName = "WidgetsCosmosController.create";
-    console.log(`${operationName}: Creating widget`);
 
     try {
       const container = await this.ensureContainer();
@@ -108,8 +102,6 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
       if (!resource) {
         return buildError({statusCode:500}, `Failed to create widget ${id}: No resource returned`);
       }
-
-      console.log(`${operationName}: Created widget with ID ${resource.id}`);
       
       return this.documentToWidget(newWidget);
     } catch (error: any) {
@@ -127,13 +119,10 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
    * @param id The ID of the widget to delete
    */
   async delete(ctx: HttpContext, id: string): Promise<void | WidgetError> {
-    const operationName = "WidgetsCosmosController.delete";
-    console.log(`${operationName}: Deleting widget with ID ${id}`);
 
     try {
       const container = await this.ensureContainer();
       await container.item(id, id).delete();
-      console.log(`${operationName}: Successfully deleted widget ${id}`);
     } catch (error: any) {
         if (error && typeof error === 'object' && 'statusCode' in error && (error as any).statusCode === 404) {
             return buildError({statusCode:404}, `Widget with id ${id} not found`);
@@ -150,8 +139,6 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
    * @returns The widget if found
    */
   async read(ctx: HttpContext, id: string): Promise<ReadWidget | WidgetError> {
-    const operationName = "WidgetsCosmosController.get";
-    console.log(`${operationName}: Getting widget with ID ${id}`);
 
     try {
       const container = await this.ensureContainer();
@@ -173,9 +160,6 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
    * @returns List of widgets
    */
   async list(ctx: HttpContext): Promise<WidgetList | WidgetError> {
-    const operationName = "WidgetsCosmosController.list";
-    
-    console.log(`${operationName}: Listing widgets`);
 
     try {
       const container = await this.ensureContainer();
@@ -183,9 +167,6 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
         const { resources } = await container.items
         .query({ query: "SELECT * FROM c" })
         .fetchAll();
-
-        console.log("Fetched widgets:", resources);
-
 
         return { widgets: resources.map(this.documentToWidget) };
 
@@ -195,13 +176,13 @@ export class WidgetsCosmosController implements Widgets<HttpContext>  {
     }
   }
   /**
-   * Convert a Cosmos DB document to a ReadWidget
+   * Convert a Cosmos DB document to a Widget
    */
   private documentToWidget(doc: WidgetDocument): Widget {
-    return {
-      id: doc.id,
-      weight: doc.weight,
-      color: doc.color,
-    };
+    return Object.fromEntries(
+      Object.entries(doc).filter(([key]) => {
+        return !key.startsWith('_');
+      })
+    ) as Widget;
   }
 }

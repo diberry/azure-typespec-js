@@ -15,6 +15,7 @@ const azureCosmosDatabase = process.env.AZURE_COSMOS_DATABASE || "WidgetsDb";
 const azureCosmosContainer = process.env.AZURE_COSMOS_CONTAINER || "Widgets";
 const azureCosmosPartitionKey = process.env.AZURE_COSMOS_PARTITION_KEY || "/id";
 
+console.log(`Endpoing: ${azureCosmosEndpoint}, Database: ${azureCosmosDatabase}, Container: ${azureCosmosContainer}, PartitionKey: ${azureCosmosPartitionKey}`);
 
 // Validate required configurations
 if (!azureCosmosEndpoint) {

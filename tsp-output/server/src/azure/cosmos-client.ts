@@ -97,8 +97,6 @@ export class CosmosClientManager {
    */
   public async getDatabase(databaseId?: string): Promise<Database> {
 
-    console.log("DatabaseId:", databaseId);
-
     if (!this.client) {
       throw new Error("CosmosDB client is not initialized. Call initialize() first");
     }
@@ -136,11 +134,6 @@ export class CosmosClientManager {
     partitionKey: string
   ): Promise<Container> {
 
-    console.log("getContainer Endpoint:", endpoint);
-    console.log("getContainer ContainerId:", containerId);
-    console.log("getContainer DatabaseId:", databaseId);
-    console.log("getContainer PartitionKey:", partitionKey);
-
     if (!databaseId) {
       throw new Error("databaseId is required");
     }
@@ -150,26 +143,21 @@ export class CosmosClientManager {
     }
 
     const cacheKey = `${databaseId || this.config?.databaseId}-${containerId}`;
-    console.log("getContainer CacheKey:", cacheKey);
 
     // Check cache first
     if (this.containerCache.has(cacheKey)) {
-      console.log("getContainer Container found in cache");
       return this.containerCache.get(cacheKey)!;
     }
 
     try {
       const database = await this.getDatabase(databaseId);
-      console.log("getContainer Database found:", database.id);
 
       const { container } = await database.containers.createIfNotExists({
         id: containerId,
         partitionKey: { paths: [partitionKey] }
       });
-      console.log("getContainer Container created:", container.id);
 
       this.containerCache.set(cacheKey, container);
-      console.log("getContainer Container cached:", container.id);
       return container;
     } catch (error) {
       console.error("getContainer Error getting or creating container:", error);
