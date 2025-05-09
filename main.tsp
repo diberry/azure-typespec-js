@@ -11,7 +11,7 @@ model Widget {
 }
 
 model WidgetList {
-  items: Widget[];
+  widgets: Read<Widget>[],
 }
 
 @error
@@ -28,7 +28,7 @@ model AnalyzeResult {
 @route("/widgets")
 @tag("Widgets")
 interface Widgets {
-  @get list(): Read<Widget>[] | WidgetError;
+  @get op list(): WidgetList | WidgetError;
   @get read(@path id: string): Read<Widget> | WidgetError;
   @post create(...Create<Widget>): Read<Widget> | WidgetError;
   @delete delete(@path id: string): void | WidgetError;
