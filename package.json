@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "build": "cd tsp-output/server && npm run build",
     "compile": "tsp compile .",
     "scaffold": "npx hsjs-scaffold "
   },

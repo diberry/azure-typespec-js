@@ -5,9 +5,11 @@ metadata:
     template: azd-init@1.14.0
 services:
     api:
-        project: ./tsp-output/server
+        project: ./
         host: containerapp
-        language: docker
+        language: js
+        docker:
+            path: Dockerfile
 pipeline:
   provider: github
 hooks:
